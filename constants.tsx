@@ -22,16 +22,58 @@ export const SKILLS: Skill[] = [
   { name: 'Puppeteer', category: 'Automation', experience: '2 anos' }, // Reflete seus scrapers de leads e compras públicas
   { name: 'Web Scraping', category: 'Automation', experience: '2 anos' },
   { name: 'RPA', category: 'Automation', experience: '2 anos' },
+  { name: 'Axios / Fetch API', category: 'Automation', experience: '2 anos' },
+  { name: 'Cron Jobs', category: 'Automation', experience: '2 anos' },
+  { name: 'Regex', category: 'Automation', experience: '2 anos' },
+  { name: 'n8n', category: 'Automation', experience: '2 anos' },
+
+
   
   // AI
   { name: 'Gemini AI API', category: 'AI', experience: '6 meses' }, // Seu projeto atual com Node.js
   { name: 'Integração de LLMs', category: 'AI', experience: '6 meses' },
+  { name: 'Prompt Engineering', category: 'AI', experience: '6 meses' },
+  { name: 'Vercel AI SDK', category: 'AI', experience: '6 meses' },
+
+
   
   // Frontend
   { name: 'React', category: 'Frontend', experience: '1 ano' },
+  { name: 'Tailwind CSS', category: 'Frontend', experience: '2 anos' },
+  { name: 'TypeScript', category: 'Frontend', experience: '2 anos' },
+  { name: 'JavaScript', category: 'Frontend', experience: '2 anos' },
+  { name: 'HTML', category: 'Frontend', experience: '2 anos' },
+  { name: 'Figma', category: 'Frontend', experience: '2 anos' },
+
+
+
+
+
   //tools
   { name: 'Git', category: 'Tools', experience: '2 anos' },
   { name: 'GitHub', category: 'Tools', experience: '2 anos' },
+  { name: 'Postman', category: 'Tools', experience: '2 anos' },
+  { name: 'Insomnia', category: 'Tools', experience: '2 anos' },
+  { name: 'ESLint', category: 'Tools', experience: '2 anos' },
+  
+  // Cloud / Infra
+  { name: 'AWS Lambda (Serverless)', category: 'Cloud/Infra', experience: '2 anos' },
+  { name: 'Amazon EC2', category: 'Cloud/Infra', experience: '2 anos' },
+  { name: 'Amazon S3', category: 'Cloud/Infra', experience: '2 anos' },
+  { name: 'Vercel', category: 'Cloud/Infra', experience: '2 anos' },
+  { name: 'Supabase', category: 'Cloud/Infra', experience: '2 anos' },
+
+  // devops
+  { name: 'Docker', category: 'DevOps', experience: '2 anos' },
+  { name: 'Kubernetes', category: 'DevOps', experience: '2 anos' },
+
+
+
+
+
+    
+
+
 ];
 
 export const PROJECTS: Project[] = [
