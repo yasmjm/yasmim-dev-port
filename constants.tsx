@@ -10,26 +10,28 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const SKILLS: Skill[] = [
-  { name: 'JavaScript', category: 'Backend' },
-  { name: 'Node.js', category: 'Backend' },
-  { name: 'PHP', category: 'Backend' },
-  { name: 'Python', category: 'Backend' },
-  { name: 'Next.js', category: 'Backend' },
-  { name: 'Supabase', category: 'Backend' },
-  { name: 'Puppeteer', category: 'Automation' },
-  { name: 'Web Scraping', category: 'Automation' },
-  { name: 'RPA', category: 'Automation' },
-  { name: 'AWS', category: 'Cloud' },
-  { name: 'Serverless', category: 'Cloud' },
-  { name: 'SQL', category: 'Database' },
-  { name: 'Git', category: 'Tools' },
-  { name: 'GitHub', category: 'Tools' },
-  { name: 'React', category: 'Frontend' },
-  { name: 'HTML', category: 'Frontend' },
-  { name: 'CSS', category: 'Frontend' },
-  { name: 'Gemini AI API', category: 'AI' },
-  { name: 'Integração de LLMs', category: 'AI' },
-
+  // Backend
+  { name: 'JavaScript', category: 'Backend', experience: '2 anos' },
+  { name: 'Node.js', category: 'Backend', experience: '2 anos' }, // Foco no seu projeto de classificador de e-mails
+  { name: 'PHP', category: 'Backend', experience: '1,5 anos' },
+  { name: 'Python', category: 'Backend', experience: '1 ano' },
+  { name: 'Next.js', category: 'Backend', experience: '1 ano' },
+  { name: 'Supabase', category: 'Backend', experience: '1,5 anos' },
+  
+  // Automation (Seu ponto forte!)
+  { name: 'Puppeteer', category: 'Automation', experience: '2 anos' }, // Reflete seus scrapers de leads e compras públicas
+  { name: 'Web Scraping', category: 'Automation', experience: '2 anos' },
+  { name: 'RPA', category: 'Automation', experience: '2 anos' },
+  
+  // AI
+  { name: 'Gemini AI API', category: 'AI', experience: '6 meses' }, // Seu projeto atual com Node.js
+  { name: 'Integração de LLMs', category: 'AI', experience: '6 meses' },
+  
+  // Frontend
+  { name: 'React', category: 'Frontend', experience: '1 ano' },
+  //tools
+  { name: 'Git', category: 'Tools', experience: '2 anos' },
+  { name: 'GitHub', category: 'Tools', experience: '2 anos' },
 ];
 
 export const PROJECTS: Project[] = [
@@ -64,3 +66,4 @@ export const PERSONAL_INFO = {
   linkedin: 'https://www.linkedin.com/in/maria-yasmim-dev/',
   description: 'Desenvolvedora apaixonada por resolver problemas complexos através de código limpo e automações inteligentes. Especialista em extração de dados e construção de fluxos RPA de alta eficiência.'
 };
+

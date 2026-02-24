@@ -1,20 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SKILLS } from '../constants';
+import { Skill } from '../types';
+
+// Componente Interno para a Tag de Habilidade
+const SkillItem: React.FC<{ skill: Skill; styles: string }> = ({ skill, styles }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <span 
+        className={`px-4 py-2 bg-white border border-gray-100 rounded-lg text-sm font-medium shadow-sm 
+                   transition-all duration-300 cursor-default inline-block
+                   ${isHovered ? '-translate-y-1 shadow-md ' + styles : ''}`}
+      >
+        {skill.name}
+      </span>
+
+      {/* Tooltip com o tempo de experiência */}
+      {isHovered && skill.experience && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50 animate-in fade-in zoom-in duration-200">
+          {skill.experience}
+          {/* Triângulo inferior do balão */}
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const Skills: React.FC = () => {
   const categories = Array.from(new Set(SKILLS.map(s => s.category)));
 
-  // Mapeamento de cores para manter a identidade visual das tecnologias
   const getSkillStyles = (name: string) => {
     const lowerName = name.toLowerCase();
-    if (lowerName.includes('node')) return 'hover:border-green-500 hover:text-green-600 hover:bg-green-50';
-    if (lowerName.includes('next') || lowerName.includes('react')) return 'hover:border-black hover:text-black hover:bg-gray-100';
-    if (lowerName.includes('puppeteer') || lowerName.includes('automation')) return 'hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50';
-    if (lowerName.includes('aws')) return 'hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50';
-    if (lowerName.includes('supabase') || lowerName.includes('sql')) return 'hover:border-emerald-400 hover:text-emerald-500 hover:bg-emerald-50';
-    if (lowerName.includes('php')) return 'hover:border-indigo-400 hover:text-indigo-500 hover:bg-indigo-50';
-    if (lowerName.includes('python')) return 'hover:border-yellow-400 hover:text-yellow-600 hover:bg-yellow-50';
-    return 'hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50';
+    if (lowerName.includes('node')) return 'border-green-500 text-green-600 bg-green-50';
+    if (lowerName.includes('next') || lowerName.includes('react')) return 'border-black text-black bg-gray-100';
+    if (lowerName.includes('puppeteer') || lowerName.includes('automation') || lowerName.includes('scraping')) return 'border-blue-400 text-blue-500 bg-blue-50';
+    if (lowerName.includes('aws')) return 'border-orange-400 text-orange-500 bg-orange-50';
+    if (lowerName.includes('supabase') || lowerName.includes('sql')) return 'border-emerald-400 text-emerald-500 bg-emerald-50';
+    if (lowerName.includes('php')) return 'border-indigo-400 text-indigo-500 bg-indigo-50';
+    if (lowerName.includes('python')) return 'border-yellow-400 text-yellow-600 bg-yellow-50';
+    return 'border-blue-500 text-blue-600 bg-blue-50';
   };
 
   return (
@@ -31,16 +61,13 @@ export const Skills: React.FC = () => {
               <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-6">
                 {category}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {SKILLS.filter(s => s.category === category).map(skill => (
-                  <span 
-                    key={skill.name}
-                    className={`px-4 py-2 bg-white border border-gray-100 rounded-lg text-sm font-medium shadow-sm 
-                               transition-all duration-300 cursor-default hover:-translate-y-1 hover:shadow-md
-                               ${getSkillStyles(skill.name)}`}
-                  >
-                    {skill.name}
-                  </span>
+                  <SkillItem 
+                    key={skill.name} 
+                    skill={skill} 
+                    styles={getSkillStyles(skill.name)} 
+                  />
                 ))}
               </div>
             </div>

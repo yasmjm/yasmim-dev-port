@@ -10,6 +10,7 @@ export interface Project {
 export interface Skill {
   name: string;
   category: 'Backend' | 'Automation' | 'Database' | 'Cloud' | 'Tools' | 'Frontend' | 'AI';
+  experience?: string;
 }
 
 export interface NavItem {
