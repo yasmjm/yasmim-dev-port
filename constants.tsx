@@ -97,6 +97,20 @@ export const PROJECTS: Project[] = [
     tags: ['Puppeteer', 'JavaScript'],
     link: 'https://github.com/yasmjm',
     github: 'https://github.com/yasmjm'
+  },
+  {
+    title: 'Explorando o ecossistema de desenvolvimento moderno: uma análise de ferramentas e serviços essenciais, da API REST ao AWS CloudFormation.',
+    description: 'Artigo publicado no Medium onde sintetizo e analiso as principais ferramentas e serviços essenciais para desenvolvedores hoje.',
+    tags: ['APIs REST', 'AWS CloudFormation'],
+    link: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571',
+    github: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571'
+  },
+    {
+    title: 'IMPLEMENTAÇÃO DE UMA REDE NEURAL COM FUNÇÃO SIGMOIDE PARA CLASSIFICAÇÃO BINÁRIA.',
+    description: 'Artigo publicado no Medium onde sintetizo e analiso as principais ferramentas e serviços essenciais para desenvolvedores hoje.',
+    tags: ['APIs REST', 'AWS CloudFormation'],
+    link: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571',
+    github: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571'
   }
 ];
 
