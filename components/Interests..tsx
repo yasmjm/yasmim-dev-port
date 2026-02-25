@@ -6,7 +6,7 @@ const KNOWLEDGE_HUB = [
     title: 'Filosofia e Lógica',
     type: 'Leituras & Estudos',
     icon: <Brain className="w-5 h-5 text-indigo-500" />,
-    description: 'Estudo de lógica e ética aplicada para aprimorar a resolução de problemas complexos no desenvolvimento.',
+    description: 'Estudo de lógica aplicada para aprimorar a resolução de problemas complexos no desenvolvimento.',
     tags: ['Estoicismo', 'Lógica', 'Clássicos']
   },
   {

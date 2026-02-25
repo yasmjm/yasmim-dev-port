@@ -62,7 +62,7 @@ const App: React.FC = () => {
               </div>
 
               <p className="text-gray-700 italic font-medium pt-4 border-t border-gray-100">
-                Encaro cada linha de código como uma oportunidade de criar sistemas que sejam, ao mesmo tempo, invisíveis e altamente funcionais.
+                Encaro cada linha de código como uma oportunidade de criar sistemas que sejam altamente funcionais.
               </p>
             </div>
           </div>
