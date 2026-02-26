@@ -107,10 +107,10 @@ export const PROJECTS: Project[] = [
   },
     {
     title: 'IMPLEMENTAÇÃO DE UMA REDE NEURAL COM FUNÇÃO SIGMOIDE PARA CLASSIFICAÇÃO BINÁRIA.',
-    description: 'Artigo publicado no Medium onde sintetizo e analiso as principais ferramentas e serviços essenciais para desenvolvedores hoje.',
+    description: 'Desenvolvimento e implementação de uma Rede Neural do zero para classificação binária. O projeto detalha a aplicação da função de ativação Sigmóide e a lógica matemática envolvida no treinamento de modelos, demonstrando domínio em fundamentos de Inteligência Artificial e Ciência de Dados.',
     tags: ['APIs REST', 'AWS CloudFormation'],
-    link: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571',
-    github: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571'
+    link: 'https://medium.com/@mariayasmimsousaalmeida/implementation-of-a-neural-network-with-sigmoid-function-for-binary-classification-abdf4eca89f5',
+    github: 'https://medium.com/@mariayasmimsousaalmeida/implementation-of-a-neural-network-with-sigmoid-function-for-binary-classification-abdf4eca89f5'
   }
 ];
 
