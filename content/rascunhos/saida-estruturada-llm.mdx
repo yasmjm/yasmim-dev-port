@@ -1,0 +1,48 @@
+---
+title: "Pare de fazer parse da resposta do LLM"
+summary: "Rascunho — sobre trocar regex na saída do modelo por schema declarado na entrada. Falta o exemplo real do classificador de e-mails."
+date: "2026-08-28"
+tags: ["IA", "Gemini", "Node.js"]
+draft: true
+---
+
+<Alerta>
+Esqueleto para preencher. Está como rascunho: aparece localmente, não vai para o site.
+</Alerta>
+
+## O problema
+
+Todo mundo começa pedindo ao modelo "responda em JSON" e depois tentando extrair o JSON da resposta com regex. E funciona — em oito de cada dez chamadas.
+
+As outras duas trazem o JSON embrulhado numa cerca de markdown, ou com uma frase educada antes, ou com uma vírgula sobrando. Aí você escreve uma função de limpeza, ela cresce, e seis meses depois você tem um parser artesanal de um formato que já tinha parser.
+
+Mostre aqui o trecho de código feio que você realmente escreveu. Vale mais que descrever.
+
+## A virada
+
+O ponto: a estrutura não se extrai da saída, se declara na entrada. Com `responseSchema`, o modelo é obrigado a devolver algo que satisfaz o schema.
+
+```js
+// Preencher com o schema real do classificador
+const schema = {
+  type: 'object',
+  properties: {
+    categoria: { type: 'string', enum: ['financeiro', 'suporte', 'comercial', 'spam'] },
+    urgencia: { type: 'integer', minimum: 1, maximum: 5 },
+    justificativa: { type: 'string' },
+  },
+  required: ['categoria', 'urgencia'],
+};
+```
+
+Desenvolver: o `enum` é o detalhe que mais economiza trabalho. Sem ele o modelo inventa categoria nova ("Financeiro/Cobrança") e sua lógica quebra num `switch`.
+
+## O que continua sendo problema seu
+
+Schema garante **forma**, não **verdade**. O modelo vai devolver uma categoria válida mesmo quando não faz ideia da resposta certa.
+
+Falar sobre: o campo de confiança e o limiar abaixo do qual o caso vai para revisão humana. Essa é a parte que separa um projeto de portfólio de um sistema que alguém confia em produção.
+
+## Números
+
+Se você tiver medido, coloque: quantos e-mails, qual a taxa de acerto, quanto tempo de triagem manual isso substituiu. Um número real vale mais que três parágrafos de explicação.

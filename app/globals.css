@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Impede que as âncoras fiquem escondidas atrás da navbar fixa. */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.glass {
+  background: rgb(255 255 255 / 0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgb(0 0 0 / 0.06);
+}
+
+/* ---- Blocos de código (rehype-pretty-code / shiki) ---- */
+pre {
+  overflow-x: auto;
+  padding: 1.25rem 0;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+pre > code {
+  display: grid;
+  background: transparent !important;
+  padding: 0;
+  border: 0;
+  font-size: inherit;
+}
+
+/* Numeração e destaque de linha */
+pre > code > [data-line] {
+  padding: 0 1.25rem;
+  border-left: 2px solid transparent;
+}
+
+pre > code > [data-highlighted-line] {
+  background: rgb(59 130 246 / 0.12);
+  border-left-color: rgb(59 130 246);
+}
+
+code[data-line-numbers] {
+  counter-reset: line;
+}
+
+code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.25rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: rgb(148 163 184);
+}
+
+/* Código dentro do texto corrido, sem as aspas que o Tailwind Typography insere */
+.prose :where(code):not(:where(pre code)) {
+  background: rgb(241 245 249);
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+  font-weight: 500;
+}
+
+.prose :where(code):not(:where(pre code))::before,
+.prose :where(code):not(:where(pre code))::after {
+  content: none;
+}
+
+/* Âncora que aparece ao passar o mouse nos títulos */
+.prose .heading-anchor {
+  opacity: 0;
+  margin-left: 0.4rem;
+  color: rgb(37 99 235);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.prose :where(h2, h3, h4):hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+  opacity: 1;
+}

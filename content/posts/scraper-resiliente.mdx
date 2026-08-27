@@ -1,0 +1,162 @@
+---
+title: "Por que seu scraper quebra na terça-feira"
+summary: "Cinco decisões de arquitetura que separam um script que funciona na sua máquina de um robô que roda sozinho por meses sem ninguém olhar."
+date: "2026-08-26"
+tags: ["Web Scraping", "Puppeteer", "Node.js"]
+draft: false
+---
+
+Todo scraper funciona no dia em que é escrito. O problema é o dia seguinte.
+
+O código roda liso na sua máquina, você coloca num cron, vai dormir feliz — e na terça-feira o portal muda uma classe de CSS, ou fica lento, ou passa a exigir dois cliques onde antes exigia um. Aí o robô não avisa que quebrou. Ele simplesmente devolve zero resultado, e ninguém percebe até alguém perguntar por que o relatório está vazio há uma semana.
+
+A diferença entre as duas situações não é o Puppeteer. É um punhado de decisões que quase nunca aparecem em tutorial.
+
+## 1. Selecione por significado, não por aparência
+
+Este é o seletor que vai quebrar:
+
+```js
+await page.click('div.sc-bdVaJa > button.sc-bwzfXH:nth-child(3)');
+```
+
+Essas classes vieram de um CSS-in-JS. Elas são geradas no build e mudam sozinhas no próximo deploy do site — sem que ninguém tenha mudado a interface.
+
+Prefira o que descreve o que o elemento **é** para quem usa a página:
+
+```js
+// Pelo texto visível
+await page.getByRole('button', { name: /consultar/i }).click();
+
+// Ou por atributos estáveis, que existem por um motivo funcional
+await page.click('[name="numeroProcesso"]');
+await page.click('[data-testid="submit"]');
+```
+
+A regra prática: se o seletor sobreviveria a uma reformulação visual do site, ele é bom. Se ele descreve cor, posição ou ordem, ele é uma bomba-relógio.
+
+## 2. Espere por condição, nunca por tempo
+
+O `sleep` fixo é o bug mais comum de scraping, e é traiçoeiro porque ele *parece* funcionar:
+
+```js
+// Nunca faça isso
+await page.click('#buscar');
+await new Promise((r) => setTimeout(r, 3000));
+const linhas = await page.$$('tr.resultado');
+```
+
+Três segundos é chute. Na sua internet, dá. No servidor às 9h de uma segunda-feira, quando o portal está congestionado, não dá — e você extrai uma tabela vazia sem erro nenhum. Pior: você paga três segundos mesmo quando a resposta chegou em 200ms.
+
+Espere pelo fato que você precisa que seja verdade:
+
+```js
+await page.click('#buscar');
+await page.waitForSelector('tr.resultado, .sem-resultados', { timeout: 30_000 });
+```
+
+Repare que eu espero pelos **dois** desfechos possíveis. "Não encontrou nada" é um resultado legítimo, não um timeout.
+
+## 3. Distinga "vazio" de "quebrado"
+
+Esse é o ponto que mais dá dor de cabeça em produção. Um scraper que retorna `[]` pode significar duas coisas completamente diferentes:
+
+- não havia nada para extrair naquele dia (normal);
+- a página mudou e seus seletores não acham mais nada (catástrofe silenciosa).
+
+Trate os dois casos separadamente, verificando primeiro se você está mesmo na página que espera:
+
+```js
+async function extrairResultados(page) {
+  // A âncora: algo que SEMPRE existe quando a página carregou certo,
+  // independentemente de haver resultados ou não.
+  const ancora = await page.$('#tabela-resultados');
+  if (!ancora) {
+    throw new Error('Layout inesperado: #tabela-resultados não existe mais');
+  }
+
+  const linhas = await page.$$eval('#tabela-resultados tbody tr', (trs) =>
+    trs.map((tr) => ({
+      titulo: tr.querySelector('td:nth-child(1)')?.textContent?.trim() ?? null,
+      orgao: tr.querySelector('td:nth-child(2)')?.textContent?.trim() ?? null,
+    })),
+  );
+
+  return linhas.filter((l) => l.titulo); // descarta linhas de cabeçalho ou vazias
+}
+```
+
+Agora um layout quebrado levanta exceção, e uma busca sem resultados devolve lista vazia. São eventos diferentes e merecem tratamentos diferentes.
+
+## 4. Torne a coleta idempotente
+
+Seu robô vai rodar duas vezes no mesmo dia. Vai. Seja porque o cron disparou duas vezes, porque você reprocessou um dia que falhou, ou porque alguém apertou o botão sem querer.
+
+Se a gravação não for idempotente, você acorda com registros duplicados e um relatório mentindo. A solução é uma chave natural — algo que identifica o item no mundo real, não no seu banco:
+
+```js
+// Um identificador derivado do próprio conteúdo
+const chave = `${item.orgao}:${item.numeroEdital}`;
+
+await supabase
+  .from('editais')
+  .upsert({ chave, ...item }, { onConflict: 'chave' });
+```
+
+Com `upsert` e uma constraint `unique` na coluna, rodar cem vezes tem o mesmo efeito de rodar uma. Isso muda tudo na hora de reprocessar uma falha: você simplesmente roda de novo, sem medo.
+
+<Nota>
+Idempotência é o que transforma "preciso investigar o que deu errado antes de rodar de novo" em "roda de novo e vê no que dá". É a diferença entre um robô que dá trabalho e um que se cuida.
+</Nota>
+
+## 5. Faça o silêncio ser barulhento
+
+O modo mais comum de um scraper falhar não é com um stack trace vermelho. É com silêncio.
+
+Instrumente a execução para que a ausência de notícia seja, ela própria, uma notícia:
+
+```js
+async function executarColeta() {
+  const inicio = Date.now();
+  let status = 'ok';
+  let total = 0;
+
+  try {
+    const itens = await coletar();
+    total = itens.length;
+
+    // Uma queda brusca em relação à média histórica quase sempre
+    // significa que algo mudou no site — não que o mundo esvaziou.
+    if (total === 0) status = 'suspeito';
+
+    await salvar(itens);
+  } catch (erro) {
+    status = 'falha';
+    await notificar(`Coleta falhou: ${erro.message}`);
+    throw erro;
+  } finally {
+    await registrarExecucao({
+      status,
+      total,
+      duracaoMs: Date.now() - inicio,
+      em: new Date().toISOString(),
+    });
+  }
+}
+```
+
+Uma tabela `execucoes` com essas quatro colunas já resolve 90% do problema de observabilidade. Você consegue responder, a qualquer momento: quando rodou pela última vez, quanto trouxe, e quanto tempo levou. Se a última execução bem-sucedida foi há três dias, você descobre em três segundos.
+
+E vale um alerta ativo para o caso mais perigoso: nenhuma execução registrada nas últimas 24 horas. Esse é o cenário em que o robô morreu tão completamente que nem conseguiu reclamar.
+
+## O resumo
+
+Um scraper de produção não é um script maior. É um script com cinco perguntas respondidas:
+
+1. Meus seletores descrevem função ou aparência?
+2. Estou esperando por um fato ou por um relógio?
+3. Consigo distinguir "não tinha nada" de "quebrou"?
+4. Rodar duas vezes causa estrago?
+5. Se ele parar hoje, quando é que eu descubro?
+
+Nenhuma delas exige biblioteca nova. Todas exigem decidir antes de codar.

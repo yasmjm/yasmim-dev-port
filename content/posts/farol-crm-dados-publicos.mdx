@@ -1,0 +1,141 @@
+---
+title: "Seu scraper entregou mil CNPJs. E agora?"
+summary: "Construí um CRM que transforma catorze dígitos em lead qualificado usando só dados públicos. O que aprendi sobre score explicável, uma interface com duas implementações, e por que Promise.all foi a pior ideia do projeto."
+date: "2026-08-27"
+tags: ["Next.js", "Supabase", "APIs Públicas", "Arquitetura"]
+draft: false
+---
+
+Captar lead nunca foi o gargalo. Um scraper decente varre o Google Maps a noite inteira e cospe uma planilha com mil linhas.
+
+O gargalo é a manhã seguinte, quando alguém abre essa planilha e precisa decidir por qual ligar primeiro. Sem contexto, a escolha vira ordem alfabética — e aí a pessoa gasta a melhor hora do dia falando com uma empresa que fechou as portas em 2019.
+
+Foi desse incômodo que saiu o [Farol](https://farol-crm.vercel.app), um CRM onde você não cadastra o lead: você informa o CNPJ e ele descobre o resto.
+
+## Catorze dígitos e o resto vem de graça
+
+O que quase ninguém usa: a Receita Federal publica o cadastro completo de toda empresa brasileira, e o IBGE publica a malha territorial inteira. Tudo aberto, tudo gratuito, sem chave de API.
+
+Com o CNPJ, a [BrasilAPI](https://brasilapi.com.br) devolve razão social, situação cadastral, CNAE principal e secundários, natureza jurídica, porte, capital social, endereço, telefone, e-mail e quadro societário. O detalhe que faz a diferença está num campo discreto do retorno: `codigo_municipio_ibge`.
+
+Esse campo é a chave que liga o cadastro da Receita à base do IBGE. É o que transforma "SAO PAULO" numa string com mesorregião e região geográfica — e é a diferença entre consumir uma API e cruzar duas bases.
+
+<Nota>
+O motor de enriquecimento está aberto aqui no site, sem cadastro: [testa com um CNPJ qualquer](/ferramentas/leads).
+</Nota>
+
+## A nota não é palpite do modelo
+
+Cada lead entra com uma nota de 0 a 100. E essa nota é calculada por regra escrita à mão, não por LLM.
+
+```ts
+// 1. Situação cadastral (30) — lead com CNPJ baixado não é lead.
+if (d.situacao.ativa) {
+  criterios.push({ label: 'Situação cadastral', pontos: 30, maximo: 30,
+    detalhe: 'Ativa na Receita' });
+} else {
+  criterios.push({ label: 'Situação cadastral', pontos: 0, maximo: 30,
+    detalhe: d.situacao.descricao ?? 'Não ativa' });
+  alertas.push(`Empresa ${(d.situacao.descricao ?? 'inativa').toLowerCase()} — não prospectar`);
+}
+```
+
+São cinco critérios: situação cadastral, maturidade, capital social, canal de contato e estrutura societária. Cada um devolve o ponto **e a justificativa**, e a tela mostra os dois lado a lado.
+
+Isso resolve de antemão a pergunta que todo entrevistador faz quando ouve "IA" num projeto: *e se o modelo alucinar?* Aqui ele não tem como — a decisão numérica nunca passou por ele.
+
+Tem uma regra extra que vale mencionar, porque ela apareceu de um caso real:
+
+```ts
+// Empresa inativa nunca deve subir de faixa por causa dos outros critérios.
+const faixa = !d.situacao.ativa ? 'frio' : total >= 70 ? 'quente' : ...
+```
+
+Uma empresa baixada com capital social alto, dez anos de operação e telefone no cadastro somava 70 pontos e aparecia como lead quente. Estava tudo certo na matemática e completamente errado na vida real. Regra de negócio não é média ponderada.
+
+## Onde a IA entra, então
+
+Em um lugar só: escrever o texto. O Gemini recebe os dados públicos e devolve um resumo comercial, uma sugestão de abordagem e dois ou três sinais de oportunidade ou risco — com `responseSchema`, então a resposta chega tipada e não como um parágrafo pra passar no regex.
+
+A divisão que eu recomendaria pra qualquer projeto: **o modelo escreve, a regra decide**. Se a chave do Gemini não estiver configurada, o CRM funciona igual — só não sai o texto. Nenhuma nota, nenhum estágio, nenhuma métrica depende dele.
+
+## Uma interface, duas implementações
+
+Essa foi a decisão de arquitetura que mais rendeu no projeto, e não custou quase nada:
+
+```ts
+export interface Repositorio {
+  listarLeads(): Promise<Lead[]>;
+  obterLead(id: string): Promise<DetalheLead | null>;
+  salvarDossie(dossie: Dossie): Promise<{ lead: Lead; novo: boolean }>;
+  editarLead(id: string, edicao: EdicaoLead): Promise<Lead | null>;
+  registrarAtividade(leadId: string, tipo: TipoAtividade, conteudo: string): Promise<Atividade | null>;
+  metricas(): Promise<Metricas>;
+}
+```
+
+Duas classes satisfazem essa interface: uma que fala com o Supabase e outra que guarda tudo em memória. Uma variável de ambiente escolhe qual sobe.
+
+O retorno veio em três frentes que eu nem tinha previsto todas. Dá pra rodar uma demonstração pública sem login e sem banco, pra quem quer só ver o produto funcionando. Dá pra desenvolver offline, sem internet e sem infra. E dá pra testar toda a lógica de funil em Node puro, sem subir Postgres nenhum — o que fez a suíte de testes rodar em dois segundos em vez de dois minutos.
+
+No Supabase, o isolamento entre contas não é `if` no código, é política no banco:
+
+```sql
+create policy "leads_proprios" on public.leads
+  for all
+  using (auth.uid() = usuario_id)
+  with check (auth.uid() = usuario_id);
+```
+
+Mesmo que alguém pegue a chave pública do front — e ela é pública por design, vai no bundle — não existe consulta que devolva lead de outra pessoa.
+
+## Promise.all foi a pior ideia do projeto
+
+A importação em massa aceita uma lista colada e enriquece tudo. A primeira versão fazia o óbvio:
+
+```ts
+const dossies = await Promise.all(cnpjs.map(enriquecer)); // 💀
+```
+
+Vinte CNPJs, vinte requisições simultâneas, e a BrasilAPI — que é um serviço público mantido pela comunidade — devolveu 429 em quinze delas. A versão que ficou anda em série, com espaçamento entre as chamadas e retry com backoff que respeita o cabeçalho `Retry-After` quando a API informa.
+
+Sim, é mais lento. Vinte CNPJs levam uns vinte segundos. Mas vinte segundos e vinte resultados é infinitamente melhor que dois segundos e cinco resultados.
+
+<Alerta>
+Quando a API é pública e gratuita, a cota não é sua. Paralelizar em cima de infraestrutura que alguém mantém de graça é, no mínimo, falta de educação.
+</Alerta>
+
+## Dois bugs que viraram teste
+
+O primeiro estava no parser que extrai CNPJs de texto colado. Eu usei um regex ganancioso:
+
+```js
+texto.match(/\d[\d.\-/\s]{12,}\d/g)
+```
+
+Como `\s` inclui quebra de linha, ele juntava o fim de uma linha com o começo da seguinte e formava um número de 28 dígitos, que era descartado por não ter catorze. Duas empresas entravam, zero saíam. A correção foi parar de garimpar com regex e quebrar por separador:
+
+```ts
+const tokens = (texto ?? '').split(/[^0-9./-]+/);
+```
+
+O segundo é o meu favorito, porque é o tipo de coisa que só aparece rodando. O histórico registrava **"Estágio alterado de Ganho para Ganho"**. O código parecia certo:
+
+```ts
+const atual = await repositorio.obterLead(id);
+await repositorio.editarLead(id, { estagio: destino });
+await repositorio.registrarAtividade(id, 'estagio',
+  `Estágio alterado de ${rotulo(atual.lead.estagio)} para ${rotulo(destino)}`);
+```
+
+O repositório em memória devolvia a **referência** do objeto guardado no array. Quando `editarLead` mutava esse objeto, `atual.lead.estagio` mudava junto — e a mensagem era montada depois. A leitura anterior tinha viajado no tempo.
+
+A correção tem duas camadas, porque uma só não bastava: guardar a origem numa variável antes de editar, e fazer o repositório em memória devolver cópias em vez da referência interna. A primeira conserta este caso; a segunda impede a próxima dúzia.
+
+Os dois viraram teste de regressão. É o único momento em que eu escrevo teste com prazer: quando ele nasce de um bug que eu já paguei pra ver.
+
+## O que ficou de fora
+
+Não tem multiusuário por empresa (é um funil por conta), não tem integração com e-mail ou WhatsApp, e o painel não tem série temporal — só o retrato de agora. Nada disso é difícil; é escopo que eu decidi não abrir enquanto o núcleo não estivesse de pé.
+
+O código está todo [no GitHub](https://github.com/yasmjm/farol-crm), e o [Farol está no ar](https://farol-crm.vercel.app) — login por link mágico, sem senha.
