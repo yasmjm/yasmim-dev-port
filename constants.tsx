@@ -1,4 +1,4 @@
-import { Project, Article, Skill, NavItem, UsefulLink } from './types';
+import { Project, Article, PressMention, Skill, NavItem, UsefulLink } from './types';
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Início', href: '#home' },
@@ -147,23 +147,48 @@ export const PROJECTS: Project[] = [
  * },
  */
 
-/** Publicações externas — separadas dos projetos para não diluir a grade de código. */
-export const ARTICLES: Article[] = [
+/**
+ * Publicações externas. Vazio = a seção "Publicado fora daqui" some da página
+ * de projetos, sem deixar buraco no layout.
+ *
+ * GUARDADOS — as duas análises do Medium, fora do site por enquanto.
+ * Para trazer de volta: descomente o objeto e cole dentro do array.
+ *
+ * {
+ *   title: 'Explorando o ecossistema de desenvolvimento moderno',
+ *   description:
+ *     'Análise das ferramentas e serviços essenciais para quem desenvolve hoje, da API REST ao AWS CloudFormation.',
+ *   tags: ['APIs REST', 'AWS'],
+ *   url: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571',
+ *   source: 'Medium',
+ * },
+ * {
+ *   title: 'Rede neural com função sigmoide para classificação binária',
+ *   description:
+ *     'Implementação de uma rede neural do zero, detalhando a função de ativação sigmoide e a lógica matemática por trás do treinamento.',
+ *   tags: ['Redes Neurais', 'Matemática'],
+ *   url: 'https://medium.com/@mariayasmimsousaalmeida/implementation-of-a-neural-network-with-sigmoid-function-for-binary-classification-abdf4eca89f5',
+ *   source: 'Medium',
+ * },
+ */
+export const ARTICLES: Article[] = [];
+
+/**
+ * Aparições na imprensa — matérias e entrevistas em que fui ouvida.
+ * Alimenta o bloco "Na imprensa" da página do blog.
+ * Lista vazia = o bloco some, sem deixar buraco no layout.
+ */
+export const PRESS: PressMention[] = [
   {
-    title: 'Explorando o ecossistema de desenvolvimento moderno',
-    description:
-      'Análise das ferramentas e serviços essenciais para quem desenvolve hoje, da API REST ao AWS CloudFormation.',
-    tags: ['APIs REST', 'AWS'],
-    url: 'https://medium.com/@mariayasmimsousaalmeida/exploring-the-modern-development-ecosystem-an-analysis-of-essential-tools-and-services-from-rest-c64f8d2b9571',
-    source: 'Medium',
-  },
-  {
-    title: 'Rede neural com função sigmoide para classificação binária',
-    description:
-      'Implementação de uma rede neural do zero, detalhando a função de ativação sigmoide e a lógica matemática por trás do treinamento.',
-    tags: ['Redes Neurais', 'Matemática'],
-    url: 'https://medium.com/@mariayasmimsousaalmeida/implementation-of-a-neural-network-with-sigmoid-function-for-binary-classification-abdf4eca89f5',
-    source: 'Medium',
+    outlet: 'Boletim Brio',
+    section: 'Todavia',
+    title:
+      'Por que jovens piauienses já não priorizam casa própria, família e “emprego de escritório”?',
+    note:
+      'Fui ouvida sobre a minha trajetória: sair do Ceará aos 18 anos para cursar Direito em Teresina, largar o curso no meio e me encontrar na tecnologia. A reportagem usa a história para discutir como a minha geração remonta a ideia de vida adulta.',
+    date: '2026-03-18',
+    byline: 'Paula Sampaio',
+    url: 'https://boletimbrio.com/2026/03/18/todavia/por-que-jovens-piauienses-ja-nao-priorizam-casa-propria-familia-e-emprego-de-escritorio-especialistas-explicam-nova-logica-da-vida-adulta/',
   },
 ];
 

@@ -48,3 +48,18 @@ export interface UsefulLink {
   note?: string;
   url: string;
 }
+
+export interface PressMention {
+  /** Veículo, ex.: 'Boletim Brio'. */
+  outlet: string;
+  /** Editoria ou coluna dentro do veículo. Opcional. */
+  section?: string;
+  title: string;
+  /** Uma ou duas frases dizendo qual foi a minha participação. */
+  note: string;
+  /** Data de publicação em ISO (YYYY-MM-DD). */
+  date: string;
+  /** Assinatura da reportagem, quando houver. Opcional. */
+  byline?: string;
+  url: string;
+}

@@ -17,7 +17,18 @@ const jsonLd = {
   email: SITE.author.email,
   jobTitle: 'Desenvolvedora Fullstack & Especialista em Automação',
   sameAs: [SITE.author.github, SITE.author.linkedin, SITE.author.medium],
-  knowsAbout: ['Web Scraping', 'RPA', 'Node.js', 'Next.js', 'Integração de LLMs', 'AWS'],
+  knowsAbout: [
+    'Engenharia de Software',
+    'Desenvolvimento Web Fullstack',
+    'TypeScript',
+    'Node.js',
+    'Next.js',
+    'PostgreSQL',
+    'Web Scraping',
+    'RPA',
+    'Integração de LLMs',
+    'AWS',
+  ],
 };
 
 export default function HomePage() {
@@ -55,7 +66,7 @@ export default function HomePage() {
               <div>
                 <dt className="text-xs text-gray-500">Foco</dt>
                 <dd className="mt-1 text-sm font-medium text-gray-900">
-                  Automação, web scraping e integração de IA
+                  Sistemas web de ponta a ponta, automação e integração de IA
                 </dd>
               </div>
 
@@ -86,8 +97,10 @@ export default function HomePage() {
               <p className="leading-relaxed text-gray-600">
                 Minha trajetória é guiada por um perfil polímata: uma curiosidade incansável que me
                 leva a integrar a precisão da engenharia de software com a profundidade da filosofia
-                e o foco em resultados. Sou especialista em navegar pela complexidade da web através
-                de scrapers avançados e construir infraestruturas robustas utilizando AWS e Node.js.
+                e o foco em resultados. Na prática, isso se divide em duas frentes que se alimentam:
+                construir sistemas web completos — modelagem relacional, API, autenticação e
+                interface, em TypeScript, Next.js e PostgreSQL — e automatizar a coleta de dados que
+                abastece esses sistemas, com Node.js, Puppeteer e infraestrutura na AWS.
               </p>
             </div>
 
@@ -98,6 +111,10 @@ export default function HomePage() {
 
               <ul className="mt-8 space-y-8">
                 {[
+                  {
+                    title: 'Engenharia de sistemas, não só de scripts',
+                    text: 'Automação é parte do meu trabalho, não o limite dele. No Farol, o CRM de prospecção que construí, fui do modelo relacional e das políticas de acesso por usuário no Postgres até o funil kanban e a importação de leads em massa — API, autenticação, interface e testes automatizados das regras de negócio.',
+                  },
                   {
                     title: 'Visão de Produto',
                     text: 'Não apenas desenvolvo; busco entender o produto de ponta a ponta para garantir que cada automação e projeto gere eficiência e retorno real.',

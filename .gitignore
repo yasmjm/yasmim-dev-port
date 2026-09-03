@@ -36,3 +36,7 @@ next-env.d.ts
 
 # preview temporario gerado durante a revisao de design
 .preview-*.html
+
+# gerados pelo Next 16 para agentes de IA
+AGENTS.md
+CLAUDE.md

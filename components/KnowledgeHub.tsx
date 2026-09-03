@@ -1,7 +1,14 @@
 import React from 'react';
 import { Brain, LineChart, Terminal, ArrowUpRight, Youtube } from 'lucide-react';
-import { PERSONAL_INFO, USEFUL_LINKS } from '@/constants';
+import { USEFUL_LINKS } from '@/constants';
 
+/**
+ * Os três pilares da curadoria. Cada um carrega:
+ * - description: o porquê do assunto entrar aqui;
+ * - focus: o que está sendo estudado agora, em pontos concretos;
+ * - practice: onde isso aparece em projeto real — é o que separa
+ *   curadoria de lista de interesses.
+ */
 const KNOWLEDGE_HUB = [
   {
     title: 'Filosofia e Lógica',
@@ -10,11 +17,20 @@ const KNOWLEDGE_HUB = [
     tint: 'bg-indigo-50 text-indigo-600',
     accent: 'bg-indigo-500',
     hover: 'group-hover:text-indigo-700',
+    marker: 'bg-indigo-400',
+    practiceBorder: 'border-indigo-200',
     tagHover: 'group-hover:border-indigo-200 group-hover:bg-indigo-50 group-hover:text-indigo-700',
     tagOwn: 'hover:border-indigo-300 hover:bg-indigo-100',
     description:
-      'Estudo de lógica aplicada para aprimorar a resolução de problemas complexos no desenvolvimento.',
-    tags: ['Estoicismo', 'Lógica', 'Clássicos'],
+      'Lógica formal e leitura dos clássicos como treino de pensamento. O objetivo é separar o problema real do problema que me contaram e sustentar uma decisão técnica com argumento, não com preferência.',
+    focus: [
+      'Estoicismo: agir sobre o que está sob meu controle, incluindo escopo de projeto',
+      'Nietzsche e formação de caráter — Academy of Ideas, Ato e Potência, Filosofatos',
+      'Lógica proposicional aplicada a code review: premissa, inferência e falácia',
+    ],
+    practice:
+      'Antes de abrir o editor, escrevo o problema em uma frase. Se não cabe em uma frase, ainda não entendi o problema.',
+    tags: ['Estoicismo', 'Nietzsche', 'Lógica proposicional', 'Clássicos', 'Argumentação'],
   },
   {
     title: 'Finanças e Estratégia',
@@ -23,11 +39,20 @@ const KNOWLEDGE_HUB = [
     tint: 'bg-emerald-50 text-emerald-600',
     accent: 'bg-emerald-500',
     hover: 'group-hover:text-emerald-700',
+    marker: 'bg-emerald-400',
+    practiceBorder: 'border-emerald-200',
     tagHover: 'group-hover:border-emerald-200 group-hover:bg-emerald-50 group-hover:text-emerald-700',
     tagOwn: 'hover:border-emerald-300 hover:bg-emerald-100',
     description:
-      'Foco em eficiência técnica e ROI, garantindo que cada automação gere valor real para o produto.',
-    tags: ['Investimentos', 'Eficiência', 'Gestão'],
+      'Estudo de negócio para escrever código que se paga. Entender a economia de um produto muda o que eu automatizo primeiro — e o que deixo manual de propósito, porque automatizar sairia mais caro que a dor.',
+    focus: [
+      'Métricas de SaaS: churn, retenção e custo de aquisição',
+      'Análise de investimentos e leitura de indicadores de empresa',
+      'Precificação e escopo fechado, o lado menos glamouroso de tocar a Genesis Go',
+    ],
+    practice:
+      'No Farol, a nota de qualificação de lead sai de regras auditáveis em vez de um modelo caro: mais barato, mais rápido e o cliente consegue contestar o critério.',
+    tags: ['Unit economics', 'Churn & retenção', 'Investimentos', 'Precificação', 'ROI'],
   },
   {
     title: 'Engenharia de Automação',
@@ -36,11 +61,20 @@ const KNOWLEDGE_HUB = [
     tint: 'bg-orange-50 text-orange-600',
     accent: 'bg-orange-500',
     hover: 'group-hover:text-orange-700',
+    marker: 'bg-orange-400',
+    practiceBorder: 'border-orange-200',
     tagHover: 'group-hover:border-orange-200 group-hover:bg-orange-50 group-hover:text-orange-700',
     tagOwn: 'hover:border-orange-300 hover:bg-orange-100',
     description:
-      'Acompanhando tendências globais de web scraping, arquitetura Node.js e integração de IAs.',
-    tags: ['Puppeteer', 'IA', 'Cloud Architecture'],
+      'A parte técnica que acompanho de perto: como orquestrar agentes de IA sem virar uma caixa-preta e como manter automação de coleta rodando quando a página do outro lado muda sem avisar.',
+    focus: [
+      'Orquestração de agentes: graph engineering e MCP como protocolo de ferramenta',
+      'Scraping resiliente — seletor dinâmico, rate limit e reexecução idempotente',
+      'Saída estruturada de LLM tratada como contrato, não como sugestão',
+    ],
+    practice:
+      'O enriquecedor de CNPJ trata a resposta do modelo como dado desconfiável: valida contra schema, cruza com Receita Federal e IBGE, e só então mostra na tela.',
+    tags: ['Puppeteer', 'Agentes de IA', 'MCP', 'Saída estruturada', 'Node.js', 'Cloud'],
   },
 ];
 
@@ -123,7 +157,38 @@ export const KnowledgeHub: React.FC = () => {
                       {item.description}
                     </p>
 
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    {/* Duas colunas: o que estudo agora | onde isso aparece no trabalho. */}
+                    <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8">
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-gray-400">
+                          No radar agora
+                        </p>
+                        <ul className="mt-3 space-y-2">
+                          {item.focus.map((point) => (
+                            <li key={point} className="flex gap-3 text-sm leading-relaxed text-gray-600">
+                              <span
+                                aria-hidden="true"
+                                className={`mt-[0.5rem] h-1 w-1 shrink-0 rounded-full ${item.marker}`}
+                              />
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div
+                        className={`rounded-xl border-l-2 bg-gray-50/80 py-4 pl-5 pr-4 transition-colors duration-300 ${item.practiceBorder}`}
+                      >
+                        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-gray-400">
+                          Na prática
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                          {item.practice}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap gap-2">
                       {item.tags.map((tag, tagIndex) => (
                         <span
                           key={tag}
@@ -142,33 +207,9 @@ export const KnowledgeHub: React.FC = () => {
           })}
         </ul>
 
-        {/* Chamada para o Medium. */}
-        <a
-          href={PERSONAL_INFO.medium}
-          target="_blank"
-          rel="noreferrer"
-          className="group mt-10 flex items-center justify-between gap-6 rounded-2xl border border-gray-200 bg-gray-50/70 p-6 transition-all duration-300 hover:border-blue-200 hover:bg-blue-50/60 hover:shadow-sm md:p-8"
-        >
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-gray-500">
-              Medium
-            </p>
-            <p className="mt-2 text-lg font-bold tracking-tight transition-colors group-hover:text-blue-700">
-              Acompanhe minhas análises
-            </p>
-            <p className="mt-1 text-sm text-gray-600">
-              Onde eu escrevo sobre o que ando estudando a fundo.
-            </p>
-          </div>
-
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all duration-300 group-hover:border-blue-200 group-hover:text-blue-700">
-            <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </span>
-        </a>
-
         {/* O que alimenta a curadoria: vídeos e aulas, largura cheia. */}
         {USEFUL_LINKS.length > 0 && (
-          <div className="mt-6 rounded-2xl border border-gray-200 bg-gray-50/70 p-6 md:p-8">
+          <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50/70 p-6 md:p-8">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-gray-500">
