@@ -40,3 +40,4 @@ next-env.d.ts
 # gerados pelo Next 16 para agentes de IA
 AGENTS.md
 CLAUDE.md
+.env*
